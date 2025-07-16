@@ -1,4 +1,3 @@
-// ✅ Must be first
 import 'dotenv/config'
 
 import express from "express"
@@ -14,9 +13,14 @@ const port = process.env.PORT || 4000
 
 app.use(express.json())
 
-// ✅ Proper CORS Setup
+// ✅ Proper CORS Setup for Multiple Frontends
+const allowedOrigins = [
+  process.env.CLIENT_URL || "http://localhost:5173",   // User App (Frontend)
+  process.env.ADMIN_URL || "http://localhost:5174"     // Admin Panel (Frontend)
+]
+
 app.use(cors({
-  origin: process.env.CLIENT_URL || "http://localhost:5173",
+  origin: allowedOrigins,
   methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true
 }))
