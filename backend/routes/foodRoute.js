@@ -1,23 +1,31 @@
-import express from "express";
-import { addFood, listFood, removeFood } from "../controllers/foodController.js";
-import multer from "multer";
-import authMiddleware from "../middleware/auth.js";
+import FoodModel from "../models/foodModel.js";
 
-const foodRouter = express.Router();
+export const addFood = async (req, res) => {
+  try {
+    console.log("✅ [addFood] API called");
+    console.log("Body =>", req.body);
+    console.log("File =>", req.file);
 
-// Image Storage Engine
-
-const storage= multer.diskStorage({
-    destination:"uploads",
-    filename:(req,file,cb)=>{
-        return cb(null,`${Date.now()}${file.originalname}`)
+    if (!req.file) {
+      console.log("❌ No image uploaded!");
+      return res.status(400).json({ success: false, message: "Image is required" });
     }
-})
 
-const upload= multer({storage:storage})
+    const food = new FoodModel({
+      name: req.body.name,
+      description: req.body.description,
+      price: req.body.price,
+      category: req.body.category,
+      image: req.file.filename, // Save filename, not path
+    });
 
-foodRouter.post("/add",upload.single("image"),authMiddleware,addFood);
-foodRouter.get("/list",listFood);
-foodRouter.post("/remove",authMiddleware,removeFood);
+    await food.save();
 
-export default foodRouter;
+    console.log("✅ Food saved:", food);
+
+    res.json({ success: true, message: "Food added successfully" });
+  } catch (err) {
+    console.error("❌ Error in addFood:", err.message);
+    res.status(500).json({ success: false, message: "Failed to add food" });
+  }
+};
