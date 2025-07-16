@@ -10,10 +10,16 @@ import cartRouter from "./routes/cartRoute.js"
 import orderRouter from "./routes/orderRoute.js"
 
 const app = express()
-const port = 4000
+const port = process.env.PORT || 4000
 
 app.use(express.json())
-app.use(cors())
+
+// ✅ Proper CORS Setup
+app.use(cors({
+  origin: process.env.CLIENT_URL || "http://localhost:5173",
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  credentials: true
+}))
 
 // DB Connection
 connectDB()
